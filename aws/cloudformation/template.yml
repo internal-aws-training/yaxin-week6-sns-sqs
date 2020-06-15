@@ -14,9 +14,11 @@ Resources:
           Subscription:
             - Endpoint: yxwang@thoughtworks.com
               Protocol: email
+            - Endpoint: !GetAtt MySQSQueue.Arn
+              Protocol: sqs
           TopicName: "MySNSTopicName"
 
-    MySNSpolicy:    
+    MySNSPolicy:    
         Type: AWS::SNS::TopicPolicy
         Properties:
             PolicyDocument:
@@ -25,10 +27,19 @@ Resources:
                 Statement:
                     - Sid: My-statement-id
                       Effect: Allow
-                      Action: sns:Publish
+                      Principal:
+                        AWS: "*"
+                      Action: SNS:Publish
                       Resource: "*"
             Topics:
                 - !Ref MySNSTopic
+
+    MySQSQueue:
+        Type: AWS::SQS::Queue
+        Properties:
+            QueueName: "MySQSQueueName"
+            MessageRetentionPeriod: 604800 # 7days
+            VisibilityTimeout: 300 # 5min
 
     SNSScheduleTriggerRule:
         Type: AWS::Events::Rule
