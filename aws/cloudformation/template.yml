@@ -1,0 +1,43 @@
+AWSTemplateFormatVersion: 2010-09-09
+Description: aws-sns-sds-dojo
+Parameters:
+    TriggerRuleName:
+        Description: Trigger Rule Name
+        Default: trigger-event-rules
+        Type: String
+
+Resources:
+    MySNSTopic:
+        Type: AWS::SNS::Topic
+        Properties:
+          DisplayName: MyAlarmSNSTopic
+          Subscription:
+            - Endpoint: yxwang@thoughtworks.com
+              Protocol: email
+          TopicName: "MySNSTopicName"
+
+    MySNSpolicy:    
+        Type: AWS::SNS::TopicPolicy
+        Properties:
+            PolicyDocument:
+                Id: MyTopicPolicy
+                Version: '2012-10-17'
+                Statement:
+                    - Sid: My-statement-id
+                      Effect: Allow
+                      Action: sns:Publish
+                      Resource: "*"
+            Topics:
+                - !Ref MySNSTopic
+
+    SNSScheduleTriggerRule:
+        Type: AWS::Events::Rule
+        Properties:
+          ScheduleExpression: cron(0/1 * * * ? *) #todo 5min
+          Targets:
+            - Id: !Ref TriggerRuleName
+              Arn: !Ref MySNSTopic
+
+
+
+
