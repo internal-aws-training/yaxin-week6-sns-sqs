@@ -41,6 +41,23 @@ Resources:
             MessageRetentionPeriod: 604800 # 7days
             VisibilityTimeout: 300 # 5min
 
+    MySQSPolicy: 
+        Type: AWS::SQS::QueuePolicy
+        Properties: 
+            Queues: 
+                - "https://sqs.ap-southeast-1.amazonaws.com/494526681395/MySQSQueueName"
+            PolicyDocument: 
+                Statement: 
+                    - 
+                        Action: 
+                          - "SQS:SendMessage" 
+                          - "SQS:ReceiveMessage"
+                        Effect: "Allow"
+                        Resource: "arn:aws:sqs:ap-southeast-1:494526681395:MySQSQueueName"
+                        Principal:  
+                          AWS: 
+                            - "*"   
+
     SNSScheduleTriggerRule:
         Type: AWS::Events::Rule
         Properties:
