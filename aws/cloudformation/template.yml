@@ -17,6 +17,9 @@ Resources:
       Properties:
         DisplayName: MyAlarmSNSTopic
         TopicName: MySNSTopicName
+        Tags:
+          - Key: Environment
+            Value: Dev
       
     EmailSubscription:
       Type: AWS::SNS::Subscription
@@ -58,6 +61,9 @@ Resources:
             QueueName: MySQSQueueName
             MessageRetentionPeriod: 604800 # 7days
             VisibilityTimeout: 300 # 5min
+            Tags: 
+              - Key: Environment
+                Value: Test
 
     MySQSPolicy: 
         Type: AWS::SQS::QueuePolicy
@@ -135,7 +141,3 @@ Resources:
           Targets:
             - Id: !Ref TriggerRuleName
               Arn: !Ref MySNSTopic
-
-
-
-
