@@ -7,16 +7,34 @@ Parameters:
         Type: String
 
 Resources:
+    MyDeadLetterQueue:
+      Type: AWS::SQS::Queue
+      Properties:
+        QueueName: MyDeadLetterQueueName
+
     MySNSTopic:
-        Type: AWS::SNS::Topic
-        Properties:
-          DisplayName: MyAlarmSNSTopic
-          Subscription:
-            - Endpoint: yxwang@thoughtworks.com
-              Protocol: email
-            - Endpoint: !GetAtt MySQSQueue.Arn
-              Protocol: sqs
-          TopicName: "MySNSTopicName"
+      Type: AWS::SNS::Topic
+      Properties:
+        DisplayName: MyAlarmSNSTopic
+        TopicName: MySNSTopicName
+      
+    EmailSubscription:
+      Type: AWS::SNS::Subscription
+      Properties: 
+        TopicArn: !Ref MySNSTopic
+        Endpoint: yxwang@thoughtworks.com
+        Protocol: email
+        RedrivePolicy: 
+          deadLetterTargetArn: !GetAtt MyDeadLetterQueue.Arn
+    
+    SQSSubscription:
+      Type: AWS::SNS::Subscription
+      Properties: 
+        TopicArn: !Ref MySNSTopic
+        Endpoint: !GetAtt MySQSQueue.Arn
+        Protocol: sqs
+        RedrivePolicy: 
+          deadLetterTargetArn: !GetAtt MyDeadLetterQueue.Arn
 
     MySNSPolicy:    
         Type: AWS::SNS::TopicPolicy
@@ -40,14 +58,6 @@ Resources:
             QueueName: MySQSQueueName
             MessageRetentionPeriod: 604800 # 7days
             VisibilityTimeout: 300 # 5min
-            RedrivePolicy: 
-              deadLetterTargetArn: !GetAtt MyDeadLetterQueue.Arn
-              maxReceiveCount: 5
-    
-    MyDeadLetterQueue:
-      Type: AWS::SQS::Queue
-      Properties:
-        QueueName: MyDeadLetterQueueName
 
     MySQSPolicy: 
         Type: AWS::SQS::QueuePolicy
