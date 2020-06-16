@@ -58,6 +58,58 @@ Resources:
                           AWS: 
                             - "*"   
 
+    MyRole:
+        Type: AWS::IAM::Role
+        Properties:
+            RoleName: MyRoleName
+            AssumeRolePolicyDocument:
+                Version: 2012-10-17
+                Statement:
+                  - Effect: Allow
+                    Principal:
+                        Service:
+                          - lambda.amazonaws.com
+                    Action:
+                        - sts:AssumeRole
+            Policies:
+                - PolicyName: LambdaLogPolicy
+                  PolicyDocument:
+                    Version: 2012-10-17
+                    Statement:
+                        - Effect: Allow
+                          Action:
+                            - logs:*
+                          Resource:
+                            - arn:aws:logs:*:*:*
+                - PolicyName: LambdaSQSPolicy
+                  PolicyDocument:
+                    Version: 2012-10-17
+                    Statement:
+                        - Effect: Allow
+                          Action:
+                            - sqs:*
+                          Resource:
+                            - !GetAtt MySQSQueue.Arn
+
+    MyLambda:
+        Type: AWS::Lambda::Function
+        Properties:
+            FunctionName: MyLambdaName
+            Role: !GetAtt MyRole.Arn
+            Handler: src/index.handler
+            Runtime: nodejs12.x
+            Code:
+                S3Bucket: lambda-metrics-bucket-yaxin
+                S3Key: sns-sds-dojo.zip
+            MemorySize: 128
+            Timeout: 3  
+    
+    MyLambdaEventSourceMapping:
+        Type: AWS::Lambda::EventSourceMapping
+        Properties:
+            EventSourceArn: !GetAtt MySQSQueue.Arn
+            FunctionName: !Ref MyLambda
+
     SNSScheduleTriggerRule:
         Type: AWS::Events::Rule
         Properties:

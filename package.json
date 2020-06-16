@@ -1,0 +1,14 @@
+{
+  "name": "sns-sds-dojo",
+  "version": "1.0.0",
+  "description": "AWS SNS SQS practice",
+  "main": "src/index.js",
+  "scripts": {
+    "pack": "npm-pack-zip"
+  },
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "npm-pack-zip": "^1.2.7"
+  }
+}
