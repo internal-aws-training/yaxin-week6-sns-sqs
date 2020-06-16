@@ -37,9 +37,17 @@ Resources:
     MySQSQueue:
         Type: AWS::SQS::Queue
         Properties:
-            QueueName: "MySQSQueueName"
+            QueueName: MySQSQueueName
             MessageRetentionPeriod: 604800 # 7days
             VisibilityTimeout: 300 # 5min
+            RedrivePolicy: 
+              deadLetterTargetArn: !GetAtt MyDeadLetterQueue.Arn
+              maxReceiveCount: 5
+    
+    MyDeadLetterQueue:
+      Type: AWS::SQS::Queue
+      Properties:
+        QueueName: MyDeadLetterQueueName
 
     MySQSPolicy: 
         Type: AWS::SQS::QueuePolicy
